@@ -1,36 +1,112 @@
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
+use near_sdk::serde::{Serialize};
 use near_sdk::collections::Vector;
+use near_sdk::collections::LookupMap;
 use near_sdk::{env, near_bindgen};
 
 near_sdk::setup_alloc!();
 
+#[derive(Serialize, BorshSerialize, BorshDeserialize)]
+pub struct Comment {
+    author: String,
+    content: String,
+    // timeStamp
+    // replies to comment?
+}
 
-#[near_bindgen]
+impl Comment {
+    pub fn new(author: String, content: String) -> Self {
+        Comment {
+            author,
+            content
+        }
+    }
+}
+
 #[derive(BorshSerialize, BorshDeserialize)]
 pub struct Post {
     comments: Vector<Comment>,
+    id: String
 }
 
-
-impl Default for Post {
-    fn default() -> Self {
-        Self {
-            comments: Vector::new(b"r".to_vec()),
+impl Post {
+    pub fn new(id: String) -> Self {
+        let mut prefix = Vec::with_capacity(33);
+        // Adding unique prefix.
+        prefix.push(b's');
+        // Adding the hash of the account_id (key of the outer map) to the prefix.
+        // This is needed to differentiate across accounts.
+        prefix.extend(env::sha256(id.as_bytes()));
+        Post {
+            comments: Vector::new(prefix),
+            id: id
         }
     }
 }
 
 #[near_bindgen]
-impl Post {
-    pub fn get_comments(self) -> Vec<String> {
-        self.comments.to_vec()
+#[derive(BorshSerialize, BorshDeserialize)]
+pub struct Contract {
+    // do I actually want to use string here? 
+    // what is the string? The post title?
+    posts: LookupMap<String, Post>,
+}
+
+
+impl Default for Contract {
+    fn default() -> Self {
+        Self {
+            posts: LookupMap::new(b"r".to_vec()),
+        }
+    }
+}
+
+#[near_bindgen]
+impl Contract {
+    #[init(ignore_state)]
+    pub fn clear_state() -> Self {
+        assert!(
+            env::predecessor_account_id() == env::current_account_id(),
+            "only I can call this"
+        );
+
+        Self { posts: LookupMap::new(b"r".to_vec()) }
     }
 
-    pub fn add_comment(&mut self, content: String) {
-        self.comments.push(&content);
-        let log_message = format!("Added comment {} to post", content.clone());
+
+    pub fn create_post(&mut self, post_id: String) {
+        assert!(env::predecessor_account_id() == env::current_account_id(), "Owner's method");
+        let post = Post::new(post_id);
+        self.posts.insert(&post.id, &post);
+    }
+
+    pub fn get_comments(self, post_id: String) -> Vec<Comment> {
+        let post = self.posts.get(&post_id);
+        assert!(post.is_some(), "Post doesn't exist");
+        post.unwrap().comments.to_vec()
+    }
+
+    // can send money
+    // want to check that there is a certain amount of money before accepting transaction
+    // how do I get the money out of the contract?
+    #[payable]
+    pub fn add_comment(&mut self, post_id: String, content: String) {
+        // check if the post exists in the map
+        let post = self.posts.get(&post_id);
+        assert!(post.is_some(), "Post doesn't exist");
+        let mut post = post.unwrap();
+
+        let author = env::predecessor_account_id();
+        let new_comment = Comment::new(author, content);
+        post.comments.push(&new_comment);
+        self.posts.insert(&post_id, &post);
+        let log_message = format!("Added comment {} to post", new_comment.content.clone());
         env::log(log_message.as_bytes());
     }
+
+    // pub fn extract_money
+
+    // pub fn set_cost
 
 }
 
@@ -65,16 +141,27 @@ mod tests {
         }
     }
 
-    // mark individual unit tests with #[test] for them to be registered and fired
+    // Should panic if adding comment to post that doesn't exist
     #[test]
+    #[should_panic]
     fn add_comment() {
         // set up the mock context into the testing environment
         let context = get_context(vec![], false);
         testing_env!(context);
         // instantiate a contract variable with the counter at zero
-        let mut contract = Post { comments: vec![] };
-        contract.add_comment("hello this is my comment".to_string());
-
-        assert_eq!(vec![Comment { content: "hello this is my comment".to_string() }], contract.get_comments());
+        let mut contract = Contract { posts: LookupMap::new(b"r".to_vec()) };
+        contract.add_comment("some_post".to_string(), "hello this is my comment".to_string());
+    }
+    
+    // owner can create posts
+    #[test]
+    fn create_post() {
+        // set up the mock context into the testing environment
+        let context = get_context(vec![], false);
+        testing_env!(context);
+        // instantiate a contract variable with the counter at zero
+        let mut contract = Contract { posts: LookupMap::new(b"r".to_vec()) };
+        contract.create_post("some_post".to_string());
+        contract.get_comments("some_post".to_string());
     }
 }

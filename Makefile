@@ -1,18 +1,20 @@
 .PHONY: all
 all: help
 
-increment: 
-	@near call whilesj.testnet increment --accountId whilesj.testnet
 
-decrement: 
-	@near call whilesj.testnet decrement --accountId whilesj.testnet
+# add_comment: 
+# 	@near call ${CONTRACT_NAME} add_comment '{ "content": "this blog post is awful, I hate it" }' --accountId whilesj.testnet
 
-get_num: 
-	@near view whilesj.testnet get_num 
+# get_comments: 
+# 	@near view ${CONTRACT_NAME} get_comments
+
+## make dev-deploy
+dev-deploy:
+	@near dev-deploy --wasmFile target/wasm32-unknown-unknown/release/rust_cryptic_comment.wasm --accountId whilesj.testnet
 
 ## make deploy: deploy the thing
 deploy:
-	@near deploy --wasmFile target/wasm32-unknown-unknown/release/rust_counter_tutorial.wasm --accountId whilesj.testnet
+	@near deploy --wasmFile target/wasm32-unknown-unknown/release/rust_cryptic_comment.wasm --accountId whilesj.testnet
 
 ## make login: login into near, needed for deployment
 login:

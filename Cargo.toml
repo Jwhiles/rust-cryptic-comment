@@ -1,5 +1,5 @@
 [package]
-name = "rust-counter-tutorial"
+name = "rust-cryptic-comment"
 version = "0.1.0"
 edition = "2021"
 
@@ -8,6 +8,7 @@ crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 near-sdk = "3.1.0"
+serde = "1.0.118"
 
 [profile.release]
 codegen-units = 1

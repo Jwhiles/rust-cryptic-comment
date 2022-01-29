@@ -1,46 +1,39 @@
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
+use near_sdk::collections::Vector;
 use near_sdk::{env, near_bindgen};
 
 near_sdk::setup_alloc!();
 
-#[near_bindgen]
-#[derive(Default, BorshSerialize, BorshDeserialize)]
-pub struct Counter {
-    val: i8,
-}
-
 
 #[near_bindgen]
-impl Counter {
+#[derive(BorshSerialize, BorshDeserialize)]
+pub struct Post {
+    comments: Vector<Comment>,
+}
 
-    pub fn get_num(&self) -> i8 {
-        self.val
-    }
 
-    pub fn increment(&mut self) {
-        self.val += 1;
-        let log_message = format!("Increased the number to {}", self.val);
-        env::log(log_message.as_bytes());
-        after_counter_change();
-    }
-
-    pub fn decrement(& mut self) {
-        self.val -= 1;
-        let log_message = format!("Decreased the number to {}", self.val);
-        env::log(log_message.as_bytes());
-        after_counter_change();
-    }
-
-    pub fn reset(&mut self) {
-        self.val = 0;
-        // neater than using to as bytes.. but more confusing
-        env::log(b"Reset counter to zero");
+impl Default for Post {
+    fn default() -> Self {
+        Self {
+            comments: Vector::new(b"r".to_vec()),
+        }
     }
 }
 
-fn after_counter_change() {
-    env::log(b"make sure you don't overflow, my friend???");
+#[near_bindgen]
+impl Post {
+    pub fn get_comments(self) -> Vec<String> {
+        self.comments.to_vec()
+    }
+
+    pub fn add_comment(&mut self, content: String) {
+        self.comments.push(&content);
+        let log_message = format!("Added comment {} to post", content.clone());
+        env::log(log_message.as_bytes());
+    }
+
 }
+
 
 #[cfg(test)]
 mod tests {
@@ -74,38 +67,14 @@ mod tests {
 
     // mark individual unit tests with #[test] for them to be registered and fired
     #[test]
-    fn increment() {
+    fn add_comment() {
         // set up the mock context into the testing environment
         let context = get_context(vec![], false);
         testing_env!(context);
         // instantiate a contract variable with the counter at zero
-        let mut contract = Counter { val: 0 };
-        contract.increment();
-        println!("Value after increment: {}", contract.get_num());
-        // confirm that we received 1 when calling get_num
-        assert_eq!(1, contract.get_num());
-    }
+        let mut contract = Post { comments: vec![] };
+        contract.add_comment("hello this is my comment".to_string());
 
-    #[test]
-    fn decrement() {
-        let context = get_context(vec![], false);
-        testing_env!(context);
-        let mut contract = Counter { val: 0 };
-        contract.decrement();
-        println!("Value after decrement: {}", contract.get_num());
-        // confirm that we received -1 when calling get_num
-        assert_eq!(-1, contract.get_num());
-    }
-
-    #[test]
-    fn increment_and_reset() {
-        let context = get_context(vec![], false);
-        testing_env!(context);
-        let mut contract = Counter { val: 0 };
-        contract.increment();
-        contract.reset();
-        println!("Value after reset: {}", contract.get_num());
-        // confirm that we received -1 when calling get_num
-        assert_eq!(0, contract.get_num());
+        assert_eq!(vec![Comment { content: "hello this is my comment".to_string() }], contract.get_comments());
     }
 }

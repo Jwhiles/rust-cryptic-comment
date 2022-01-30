@@ -3,22 +3,26 @@ use near_sdk::serde::{Serialize};
 use near_sdk::collections::Vector;
 use near_sdk::collections::LookupMap;
 use near_sdk::{env, near_bindgen};
+use std::time::{SystemTime, UNIX_EPOCH};
+
 
 near_sdk::setup_alloc!();
+
+const ONE_NEAR: u128 = 1000000000000000000000000;
+
 
 #[derive(Serialize, BorshSerialize, BorshDeserialize)]
 pub struct Comment {
     author: String,
     content: String,
-    // timeStamp
-    // replies to comment?
 }
 
 impl Comment {
     pub fn new(author: String, content: String) -> Self {
+        let time = SystemTime::now().duration_since(UNIX_EPOCH).expect("Time went backwards").as_millis();
         Comment {
             author,
-            content
+            content,
         }
     }
 }
@@ -47,9 +51,9 @@ impl Post {
 #[near_bindgen]
 #[derive(BorshSerialize, BorshDeserialize)]
 pub struct Contract {
-    // do I actually want to use string here? 
-    // what is the string? The post title?
+    // String is the post_id
     posts: LookupMap<String, Post>,
+    comment_cost: u128
 }
 
 
@@ -57,6 +61,7 @@ impl Default for Contract {
     fn default() -> Self {
         Self {
             posts: LookupMap::new(b"r".to_vec()),
+            comment_cost: ONE_NEAR / 100 // 0.01 NEAR
         }
     }
 }
@@ -70,14 +75,25 @@ impl Contract {
             "only I can call this"
         );
 
-        Self { posts: LookupMap::new(b"r".to_vec()) }
+        Self { posts: LookupMap::new(b"r".to_vec()), comment_cost: ONE_NEAR / 100 }
     }
 
+    pub fn set_comment_cost(&mut self, new_cost: String) {
+        let new_cost = new_cost.parse::<u128>().unwrap();
+
+        assert!(env::predecessor_account_id() == env::current_account_id(), "Owner's method");
+
+        self.comment_cost = new_cost;
+        let log_message = format!("Set comment cost to {}", new_cost);
+        env::log(log_message.as_bytes());
+    }
 
     pub fn create_post(&mut self, post_id: String) {
         assert!(env::predecessor_account_id() == env::current_account_id(), "Owner's method");
         let post = Post::new(post_id);
         self.posts.insert(&post.id, &post);
+        let log_message = format!("Created post with ID {}", post.id);
+        env::log(log_message.as_bytes());
     }
 
     pub fn get_comments(self, post_id: String) -> Vec<Comment> {
@@ -86,11 +102,11 @@ impl Contract {
         post.unwrap().comments.to_vec()
     }
 
-    // can send money
-    // want to check that there is a certain amount of money before accepting transaction
-    // how do I get the money out of the contract?
     #[payable]
     pub fn add_comment(&mut self, post_id: String, content: String) {
+        // check that the attached deposit is enough
+        assert!(near_sdk::env::attached_deposit() >= self.comment_cost, "Not enough near staked. Minimum is currently {} Near", self.comment_cost);
+           
         // check if the post exists in the map
         let post = self.posts.get(&post_id);
         assert!(post.is_some(), "Post doesn't exist");
@@ -103,11 +119,6 @@ impl Contract {
         let log_message = format!("Added comment {} to post", new_comment.content.clone());
         env::log(log_message.as_bytes());
     }
-
-    // pub fn extract_money
-
-    // pub fn set_cost
-
 }
 
 

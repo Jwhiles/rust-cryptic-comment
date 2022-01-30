@@ -2,6 +2,9 @@
 all: help
 
 
+set_comment_cost: 
+	@near call ${CONTRACT_ID} set_comment_cost '{ "new_cost": "10000000000000000000000" }' --accountId whilesj.testnet
+
 clear_state: 
 	@near call ${CONTRACT_ID} clear_state --accountId whilesj.testnet
 

@@ -3,7 +3,6 @@ use near_sdk::serde::{Serialize};
 use near_sdk::collections::Vector;
 use near_sdk::collections::LookupMap;
 use near_sdk::{env, near_bindgen};
-use std::time::{SystemTime, UNIX_EPOCH};
 
 
 near_sdk::setup_alloc!();
@@ -19,7 +18,6 @@ pub struct Comment {
 
 impl Comment {
     pub fn new(author: String, content: String) -> Self {
-        let time = SystemTime::now().duration_since(UNIX_EPOCH).expect("Time went backwards").as_millis();
         Comment {
             author,
             content,

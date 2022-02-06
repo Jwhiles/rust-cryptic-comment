@@ -1,7 +1,12 @@
-import { getComments } from "./near/index";
+import { getComments, createPost } from "./near/index";
 import { useEffect, useState } from "react";
 
-type RequestState = "initialized" | "loading" | "loaded" | "error";
+type RequestState =
+  | "initialized"
+  | "loading"
+  | "loaded"
+  | "error"
+  | "post_not_found";
 interface Comment {
   author: string;
   content: string;
@@ -18,8 +23,12 @@ const useComments = (postId: string) => {
 
     (async () => {
       try {
-        const comments = await getComments(postId);
-        setCommentsState({ state: "loaded", comments });
+        const { type, comments } = await getComments(postId);
+        if (type === "success") {
+          setCommentsState({ state: "loaded", comments });
+        } else if (type === "post_not_found") {
+          setCommentsState({ state: "post_not_found", comments: [] });
+        }
       } catch (e) {
         setCommentsState({ state: "error", comments: [] });
       }
@@ -37,20 +46,32 @@ const Comments = ({ postId }: { postId: string }) => {
       return <div>loading</div>;
     case "error":
       return <div>oh no</div>;
+    case "post_not_found":
+      return <PostNotFound postId={postId} />;
     case "loaded":
       return (
         <div>
-          {commentsState.comments.map(({ author, content }, ix) => {
+          {commentsState.comments.length > 0 ? commentsState.comments.map(({ author, content }, ix) => {
             return (
               <div key={ix}>
                 <p>{content}</p>
                 <p>wrote: {author}</p>
               </div>
             );
-          })}
+          }) :
+          <div>no comments yet</div>}
         </div>
       );
   }
+};
+
+const PostNotFound = ({ postId }: { postId: string }) => {
+  return (
+    <div>
+      <p>post not found if you are John, then click below to create it</p>
+      <button onClick={() => createPost(postId)}>Create post</button>
+    </div>
+  );
 };
 
 export default Comments;

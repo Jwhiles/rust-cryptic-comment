@@ -1,12 +1,19 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import './index.css';
 import App from './App';
+import { hatch } from './near/index'
 
-ReactDOM.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-  document.getElementById('root')
+
+hatch().then(
+  ({ contract, currentUser, nearConfig, walletConnection }) => {
+    ReactDOM.render(
+      <App
+        contract={contract}
+        currentUser={currentUser}
+        nearConfig={nearConfig}
+        wallet={walletConnection}
+      />,
+      document.getElementById('root')
+    );
+  }
 );
-

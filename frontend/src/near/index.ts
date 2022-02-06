@@ -1,57 +1,89 @@
-import { keyStores, Near, WalletConnection, Contract } from "near-api-js";
+import * as nearAPI from "near-api-js";
+import Big from "big.js";
 import getConfig from "./config";
 
-const nearConfig = getConfig("development");
-export const CONTRACT_ID =
-  process.env.NODE_ENV === "development"
-    ? "whilesj.testnet"
-    : "whilesj.testnet"; // smart
+let contract: any;
+let wallet: any;
+let nearConfig: any;
+// hatch as in egg
+export async function hatch() {
+  nearConfig = getConfig("testnet"); // TODO
 
-export const near = new Near({
-  networkId: nearConfig.networkId,
-  keyStore: new keyStores.BrowserLocalStorageKeyStore(),
-  nodeUrl: nearConfig.nodeUrl,
-  walletUrl: nearConfig.walletUrl,
-  headers: {}
-});
+  const keyStore = new nearAPI.keyStores.BrowserLocalStorageKeyStore();
 
+  const near = await nearAPI.connect({ keyStore, ...nearConfig, headers: {} });
 
-export const wallet = new WalletConnection(near, CONTRACT_ID);
-export const accountId = wallet.getAccountId();
+  wallet = new nearAPI.WalletConnection(near, nearConfig.contractName);
 
-const contract = new Contract(
-  wallet.account(),
-  CONTRACT_ID,
-  {
-    viewMethods: ["get_comments"], // view methods do not change state but usually return a value
-    changeMethods: [], // change methods modify state
+  // Load in user's account data
+  let currentUser;
+  console.log(wallet);
+  console.log(wallet.getAccountId());
+  if (wallet.getAccountId()) {
+    currentUser = {
+      // Gets the accountId as a string
+      accountId: wallet.getAccountId(),
+      // Gets the user's token balance
+      balance: (await wallet.account().state()).amount
+    };
   }
-);
 
-// export function logout() {
-//   wallet.signOut();
-//   localStorage.removeItem(
-//     `near-api-js:keystore:${accountId.value}:${nearConfig.networkId}`
-//   );
-//   accountId.value = wallet.getAccountId();
-// }
+  contract = new nearAPI.Contract(
+    wallet.account(),
+    // accountId of the contract we will be loading
+    // NOTE: All contracts on NEAR are deployed to an account and
+    // accounts can only have one contract deployed to them.
+    nearConfig.contractName,
+    {
+      viewMethods: ["get_comments"],
+      changeMethods: ["add_comment"]
+    }
+  );
 
-// export function login() {
-//   wallet.requestSignIn(nearConfig.contractName);
-// }
+  return { contract, currentUser, nearConfig, walletConnection: wallet };
+}
 
 // -----------------------------------------------------------------------------------
 // view functions
 // -----------------------------------------------------------------------------------
-// No login is required when calling view methods on a contract
 export const getComments = async (postId: string) => {
-  // It doesn't pick up that this is a valid function?
-  // @ts-expect-error
   const response = await contract.get_comments({ post_id: postId });
 
-  return response
+  return response;
 };
 
-// -----------------------------------------------------------------------------------
-// change functions
-// -----------------------------------------------------------------------------------
+export const addComment = async (
+  content: string,
+  donation: number,
+  postId: string
+) => {
+  const donationB = Big(donation || "0")
+    .times(10 ** 24)
+    .toFixed();
+
+  await contract.add_comment(
+    {
+      post_id: postId,
+      content
+    },
+    Big(3)
+      .times(10 ** 13)
+      .toFixed(),
+    donationB
+  );
+};
+
+export const signIn = () => {
+  wallet.requestSignIn(
+    {
+      contractId: nearConfig.contractName,
+      methodNames: [contract.add_comment.name]
+    }, //contract requesting access
+    "Cryptic Comments", //optional name
+  );
+};
+
+export const signOut = () => {
+  wallet.signOut();
+  window.location.replace(window.location.origin + window.location.pathname);
+};

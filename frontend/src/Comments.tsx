@@ -51,15 +51,18 @@ const Comments = ({ postId }: { postId: string }) => {
     case "loaded":
       return (
         <div>
-          {commentsState.comments.length > 0 ? commentsState.comments.map(({ author, content }, ix) => {
-            return (
-              <div key={ix}>
-                <p>{content}</p>
-                <p>wrote: {author}</p>
-              </div>
-            );
-          }) :
-          <div>no comments yet</div>}
+          {commentsState.comments.length > 0 ? (
+            commentsState.comments.map(({ author, content }, ix) => {
+              return (
+                <div key={ix}>
+                  <p>{content}</p>
+                  <p>wrote: {author}</p>
+                </div>
+              );
+            })
+          ) : (
+            <div>no comments yet</div>
+          )}
         </div>
       );
   }

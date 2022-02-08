@@ -1,5 +1,6 @@
 
-* Check whether running this thing in an iframe still works :)
+* it doesn't work in an iframe, so I want to publish a npm package, which will export a function that takes a element id, and a contract id, then renders it into the screen. I can they just add a div to every page that wants comments, and a script that loads the thing and runs..
+
 * Add timestamps to comments
 * Come up with sensible scheme for post ids, also how they should be created
   * Do I just write a script that I run whenever I publish something? 
@@ -8,3 +9,5 @@
 
 * Maybes
   * Nested comments?
+  * convert it to preact
+

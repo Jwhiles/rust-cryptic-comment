@@ -18,3 +18,10 @@ NPM
 THE NEAR CLI
 
 Then run `make` in your command line and follow the help I guess?
+
+## Hi John
+if you are reading this, you've forgotten how this project works.
+
+there are two parts.
+* The backend is in rust, and is deployed to near manually, by you. Run make build and then make deploy to publish a new version. Any chances to the data model will require migration
+* The frontend is a small react app

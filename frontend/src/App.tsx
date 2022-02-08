@@ -7,18 +7,15 @@ interface AppProps {
   currentUser: any;
   nearConfig: any;
   wallet: any;
+  postId: string
 }
 
 const App = (props: AppProps) => {
-  const postId = window.location.pathname.slice(1);
-  if (postId.length < 1) {
-    throw new Error(`invalid post_id query string. Found ${postId}`);
-  }
 
   return (
     <div>
-      <Comments postId={postId} />
-      {props.currentUser && <CommentForm postId={postId} />}
+      <Comments postId={props.postId} />
+      {props.currentUser && <CommentForm postId={props.postId} />}
       {props.currentUser ? (
         <button onClick={signOut}>Sign out</button>
       ) : (
@@ -28,7 +25,7 @@ const App = (props: AppProps) => {
   );
 };
 
-const CommentForm = ({ postId}: any) => {
+const CommentForm = ({ postId }: any) => {
   const [comment, setComment] = useState("");
   const [donation, setDonation] = useState(0);
 

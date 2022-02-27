@@ -13,10 +13,16 @@ add_comment:
 
 
 create_post: 
-	@near call ${CONTRACT_ID} create_post '{ "post_id": "my-new-post", "title": "whatever", "content": "whatever", "slug": "whatever" }' --accountId whilesj.testnet 
+	@near call ${CONTRACT_ID} create_post '{ "post_id": "chans-post", "title": "chan", "content": "likes", "slug": "slugs" }' --accountId whilesj.testnet 
 
 get_comments: 
 	@near view ${CONTRACT_ID} get_comments '{ "post_id": "my-new-post" }'
+
+get_post: 
+	@near view ${CONTRACT_ID} get_post '{ "post_id": "chans-post" }'
+
+get_posts_listing: 
+	@near view ${CONTRACT_ID} get_posts_listing '{}'
 
 ## make dev-deploy
 dev-deploy:

@@ -1,5 +1,5 @@
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
-use near_sdk::collections::LookupMap;
+use near_sdk::collections::TreeMap;
 use near_sdk::collections::Vector;
 use near_sdk::serde::Serialize;
 use near_sdk::{env, near_bindgen};
@@ -37,6 +37,16 @@ pub struct Post {
     // contract owner is always the author
 }
 
+#[derive(BorshSerialize, BorshDeserialize, Serialize)]
+pub struct ApiPost {
+    comments: Vec<Comment>,
+    id: String,
+    title: String,
+    content: String,
+    slug: String,
+    // contract owner is always the author
+}
+
 impl Post {
     pub fn new(id: String, title: String, content: String, slug: String) -> Self {
         let mut prefix = Vec::with_capacity(33);
@@ -59,14 +69,14 @@ impl Post {
 #[derive(BorshSerialize, BorshDeserialize)]
 pub struct Contract {
     // String is the post_id
-    posts: LookupMap<String, Post>,
+    posts: TreeMap<String, Post>,
     comment_cost: u128,
 }
 
 impl Default for Contract {
     fn default() -> Self {
         Self {
-            posts: LookupMap::new(b"r".to_vec()),
+            posts: TreeMap::new(b"r".to_vec()),
             comment_cost: ONE_NEAR / 100, // 0.01 NEAR
         }
     }
@@ -82,7 +92,7 @@ impl Contract {
         );
 
         Self {
-            posts: LookupMap::new(b"r".to_vec()),
+            posts: TreeMap::new(b"r".to_vec()),
             comment_cost: ONE_NEAR / 100,
         }
     }
@@ -112,17 +122,36 @@ impl Contract {
         env::log(log_message.as_bytes());
     }
 
-    // pub fn get_post(self, post_id: String) -> Post {
-    //     let post = self.posts.get(&post_id);
-    //     assert!(post.is_some(), "Post doesn't exist");
-    //     post.unwrap()
-    // }
+    // enabling this makes the compilation stop working - because we can't just return posts
+    // instead I think we need to resolve all the comments.
+    pub fn get_post(self, post_id: String) -> ApiPost {
+        let post = self.posts.get(&post_id);
+        assert!(post.is_some(), "Post doesn't exist");
+        match post {
+            Some(p) => ApiPost {
+                comments: p.comments.to_vec(),
+                id: p.id,
+                content: p.content,
+                title: p.title,
+                slug: p.slug,
+            },
+            None => panic!("post does not exist"),
+        }
+    }
 
     pub fn get_posts_listing(self) -> Vec<PostListing> {
+        let mut post_listing: Vec<PostListing> = vec![];
+        for (_, post) in self.posts.into_iter() {
+            post_listing.push(PostListing {
+                post_id: post.id,
+                title: post.title,
+                slug: post.slug,
+            });
+        }
         // for this to work we need to convert from a LookupMap to either TreeMap or UnorderedMap
         // apparently it's imposible to iterate LookupMap.
         // https://docs.rs/near-sdk/2.0.0/near_sdk/collections/struct.TreeMap.html
-        return vec![];
+        return post_listing;
     }
 
     pub fn get_comments(self, post_id: String) -> Vec<Comment> {
@@ -150,66 +179,5 @@ impl Contract {
         self.posts.insert(&post_id, &post);
         let log_message = format!("Added comment {} to post", new_comment.content.clone());
         env::log(log_message.as_bytes());
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use near_sdk::MockedBlockchain;
-    use near_sdk::{testing_env, VMContext};
-
-    // part of writing unit tests is setting up a mock context
-    // in this example, this is only needed for env::log in the contract
-    // this is also a useful list to peek at when wondering what's available in env::*
-    fn get_context(input: Vec<u8>, is_view: bool) -> VMContext {
-        VMContext {
-            current_account_id: "alice.testnet".to_string(),
-            signer_account_id: "robert.testnet".to_string(),
-            signer_account_pk: vec![0, 1, 2],
-            predecessor_account_id: "jane.testnet".to_string(),
-            input,
-            block_index: 0,
-            block_timestamp: 0,
-            account_balance: 0,
-            account_locked_balance: 0,
-            storage_usage: 0,
-            attached_deposit: 0,
-            prepaid_gas: 10u64.pow(18),
-            random_seed: vec![0, 1, 2],
-            is_view,
-            output_data_receivers: vec![],
-            epoch_height: 19,
-        }
-    }
-
-    // Should panic if adding comment to post that doesn't exist
-    #[test]
-    #[should_panic]
-    fn add_comment() {
-        // set up the mock context into the testing environment
-        let context = get_context(vec![], false);
-        testing_env!(context);
-        // instantiate a contract variable with the counter at zero
-        let mut contract = Contract {
-            posts: LookupMap::new(b"r".to_vec()),
-        };
-        contract.add_comment(
-            "some_post".to_string(),
-            "hello this is my comment".to_string(),
-        );
-    }
-    // owner can create posts
-    #[test]
-    fn create_post() {
-        // set up the mock context into the testing environment
-        let context = get_context(vec![], false);
-        testing_env!(context);
-        // instantiate a contract variable with the counter at zero
-        let mut contract = Contract {
-            posts: LookupMap::new(b"r".to_vec()),
-        };
-        contract.create_post("some_post".to_string());
-        contract.get_comments("some_post".to_string());
     }
 }

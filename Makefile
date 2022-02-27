@@ -11,8 +11,9 @@ clear_state:
 add_comment: 
 	@near call ${CONTRACT_ID} add_comment '{ "post_id": "my-new-post", "content": "nice blog post!" }' --accountId whilesj.testnet --deposit 0.01
 
+
 create_post: 
-	@near call ${CONTRACT_ID} create_post '{ "post_id": "my-new-post" }' --accountId whilesj.testnet 
+	@near call ${CONTRACT_ID} create_post '{ "post_id": "my-new-post", "title": "whatever", "content": "whatever", "slug": "whatever" }' --accountId whilesj.testnet 
 
 get_comments: 
 	@near view ${CONTRACT_ID} get_comments '{ "post_id": "my-new-post" }'

@@ -1,14 +1,12 @@
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
-use near_sdk::serde::{Serialize};
-use near_sdk::collections::Vector;
 use near_sdk::collections::LookupMap;
+use near_sdk::collections::Vector;
+use near_sdk::serde::Serialize;
 use near_sdk::{env, near_bindgen};
-
 
 near_sdk::setup_alloc!();
 
 const ONE_NEAR: u128 = 1000000000000000000000000;
-
 
 #[derive(Serialize, BorshSerialize, BorshDeserialize)]
 pub struct Comment {
@@ -18,21 +16,29 @@ pub struct Comment {
 
 impl Comment {
     pub fn new(author: String, content: String) -> Self {
-        Comment {
-            author,
-            content,
-        }
+        Comment { author, content }
     }
+}
+
+#[derive(BorshSerialize, BorshDeserialize, Serialize)]
+pub struct PostListing {
+    post_id: String,
+    title: String,
+    slug: String,
 }
 
 #[derive(BorshSerialize, BorshDeserialize)]
 pub struct Post {
     comments: Vector<Comment>,
-    id: String
+    id: String,
+    title: String,
+    content: String,
+    slug: String,
+    // contract owner is always the author
 }
 
 impl Post {
-    pub fn new(id: String) -> Self {
+    pub fn new(id: String, title: String, content: String, slug: String) -> Self {
         let mut prefix = Vec::with_capacity(33);
         // Adding unique prefix.
         prefix.push(b's');
@@ -41,7 +47,10 @@ impl Post {
         prefix.extend(env::sha256(id.as_bytes()));
         Post {
             comments: Vector::new(prefix),
-            id: id
+            id,
+            title,
+            content,
+            slug,
         }
     }
 }
@@ -51,15 +60,14 @@ impl Post {
 pub struct Contract {
     // String is the post_id
     posts: LookupMap<String, Post>,
-    comment_cost: u128
+    comment_cost: u128,
 }
-
 
 impl Default for Contract {
     fn default() -> Self {
         Self {
             posts: LookupMap::new(b"r".to_vec()),
-            comment_cost: ONE_NEAR / 100 // 0.01 NEAR
+            comment_cost: ONE_NEAR / 100, // 0.01 NEAR
         }
     }
 }
@@ -73,25 +81,48 @@ impl Contract {
             "only I can call this"
         );
 
-        Self { posts: LookupMap::new(b"r".to_vec()), comment_cost: ONE_NEAR / 100 }
+        Self {
+            posts: LookupMap::new(b"r".to_vec()),
+            comment_cost: ONE_NEAR / 100,
+        }
     }
 
     pub fn set_comment_cost(&mut self, new_cost: String) {
         let new_cost = new_cost.parse::<u128>().unwrap();
 
-        assert!(env::predecessor_account_id() == env::current_account_id(), "Owner's method");
+        assert!(
+            env::predecessor_account_id() == env::current_account_id(),
+            "Owner's method"
+        );
 
         self.comment_cost = new_cost;
         let log_message = format!("Set comment cost to {}", new_cost);
         env::log(log_message.as_bytes());
     }
 
-    pub fn create_post(&mut self, post_id: String) {
-        assert!(env::predecessor_account_id() == env::current_account_id(), "Owner's method");
-        let post = Post::new(post_id);
+    pub fn create_post(&mut self, post_id: String, title: String, content: String, slug: String) {
+        assert!(
+            env::predecessor_account_id() == env::current_account_id(),
+            "Owner's method"
+        );
+        let post = Post::new(post_id, title, content, slug);
+        // Check that the post ID doesn't already exist!
         self.posts.insert(&post.id, &post);
         let log_message = format!("Created post with ID {}", post.id);
         env::log(log_message.as_bytes());
+    }
+
+    // pub fn get_post(self, post_id: String) -> Post {
+    //     let post = self.posts.get(&post_id);
+    //     assert!(post.is_some(), "Post doesn't exist");
+    //     post.unwrap()
+    // }
+
+    pub fn get_posts_listing(self) -> Vec<PostListing> {
+        // for this to work we need to convert from a LookupMap to either TreeMap or UnorderedMap
+        // apparently it's imposible to iterate LookupMap.
+        // https://docs.rs/near-sdk/2.0.0/near_sdk/collections/struct.TreeMap.html
+        return vec![];
     }
 
     pub fn get_comments(self, post_id: String) -> Vec<Comment> {
@@ -103,8 +134,11 @@ impl Contract {
     #[payable]
     pub fn add_comment(&mut self, post_id: String, content: String) {
         // check that the attached deposit is enough
-        assert!(near_sdk::env::attached_deposit() >= self.comment_cost, "Not enough near staked. Minimum is currently {} Near", self.comment_cost);
-           
+        assert!(
+            near_sdk::env::attached_deposit() >= self.comment_cost,
+            "Not enough near staked. Minimum is currently {} Near",
+            self.comment_cost
+        );
         // check if the post exists in the map
         let post = self.posts.get(&post_id);
         assert!(post.is_some(), "Post doesn't exist");
@@ -118,7 +152,6 @@ impl Contract {
         env::log(log_message.as_bytes());
     }
 }
-
 
 #[cfg(test)]
 mod tests {
@@ -158,10 +191,14 @@ mod tests {
         let context = get_context(vec![], false);
         testing_env!(context);
         // instantiate a contract variable with the counter at zero
-        let mut contract = Contract { posts: LookupMap::new(b"r".to_vec()) };
-        contract.add_comment("some_post".to_string(), "hello this is my comment".to_string());
+        let mut contract = Contract {
+            posts: LookupMap::new(b"r".to_vec()),
+        };
+        contract.add_comment(
+            "some_post".to_string(),
+            "hello this is my comment".to_string(),
+        );
     }
-    
     // owner can create posts
     #[test]
     fn create_post() {
@@ -169,7 +206,9 @@ mod tests {
         let context = get_context(vec![], false);
         testing_env!(context);
         // instantiate a contract variable with the counter at zero
-        let mut contract = Contract { posts: LookupMap::new(b"r".to_vec()) };
+        let mut contract = Contract {
+            posts: LookupMap::new(b"r".to_vec()),
+        };
         contract.create_post("some_post".to_string());
         contract.get_comments("some_post".to_string());
     }

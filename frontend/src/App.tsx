@@ -1,3 +1,5 @@
+import Posts from "./Posts";
+import Post from "./Post";
 import Comments from "./Comments";
 import CommentForm from "./CommentForm";
 import { signIn, signOut } from "./near";
@@ -11,9 +13,11 @@ interface AppProps {
 }
 
 const App = (props: AppProps) => {
-
+  // render below components according to routes
   return (
     <div>
+      <Posts />
+      <Post postId={props.postId} />
       <Comments postId={props.postId} />
       {props.currentUser && <CommentForm postId={props.postId} />}
       {props.currentUser ? (

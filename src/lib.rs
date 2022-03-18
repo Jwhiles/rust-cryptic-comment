@@ -122,8 +122,6 @@ impl Contract {
         env::log(log_message.as_bytes());
     }
 
-    // enabling this makes the compilation stop working - because we can't just return posts
-    // instead I think we need to resolve all the comments.
     pub fn get_post(self, post_id: String) -> ApiPost {
         let post = self.posts.get(&post_id);
         assert!(post.is_some(), "Post doesn't exist");

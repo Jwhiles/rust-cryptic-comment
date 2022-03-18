@@ -25,7 +25,7 @@ export async function hatch() {
   }
 
   contract = new nearAPI.Contract(wallet.account(), nearConfig.contractName, {
-    viewMethods: ["get_comments"],
+    viewMethods: ["get_comments", "get_posts_listing", "get_post"],
     changeMethods: ["add_comment", "create_post"]
   });
 
@@ -46,6 +46,29 @@ export const getComments = async (postId: string) => {
     } else {
       throw e;
     }
+  }
+};
+
+export const getPost = async (postId: string) => {
+  try {
+    const post = await contract.get_post({ post_id: postId });
+    return { type: "success", post };
+  } catch (e) {
+    const message = (e as any).message;
+    if (message.includes(`Post doesn't exist`)) {
+      return { type: "post_not_found" };
+    } else {
+      throw e;
+    }
+  }
+};
+
+export const getPosts = async () => {
+  try {
+    const posts = await contract.get_posts_listing();
+    return { type: "success", posts };
+  } catch (e) {
+      throw e;
   }
 };
 

@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { getPosts } from "./near/index";
 import { useEffect, useState } from "react";
 
@@ -10,6 +11,7 @@ type RequestState =
 interface Post {
   title: string;
   slug: string;
+  post_id: string;
 }
 
 const usePosts = () => {
@@ -51,11 +53,12 @@ const Posts = () => {
     case "loaded":
       return (
         <div>
+          <h1>Welcome to blog</h1>
           {postsState.posts.length > 0 ? (
-            postsState.posts.map(({ title, slug }, ix) => {
+            postsState.posts.map(({ title, slug, post_id }, ix) => {
               return (
                 <div key={ix}>
-                  <p>{title}</p>
+                  <Link to={post_id}>{title}</Link>
                 </div>
               );
             })

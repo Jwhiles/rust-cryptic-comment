@@ -1,18 +1,21 @@
 import React from "react";
 import ReactDOM from "react-dom";
+import { BrowserRouter } from "react-router-dom";
 import App from "./App";
 import { hatch } from "./near/index";
 
 export const renderComments = (domNode: HTMLElement | null, postId: string) => {
   hatch().then(({ contract, currentUser, nearConfig, walletConnection }) => {
     ReactDOM.render(
-      <App
-        contract={contract}
-        currentUser={currentUser}
-        nearConfig={nearConfig}
-        wallet={walletConnection}
-        postId={postId}
-      />,
+      <BrowserRouter>
+        <App
+          contract={contract}
+          currentUser={currentUser}
+          nearConfig={nearConfig}
+          wallet={walletConnection}
+          postId={postId}
+        />,
+        </BrowserRouter>,
       domNode
     );
   });

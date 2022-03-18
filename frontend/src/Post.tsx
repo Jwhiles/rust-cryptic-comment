@@ -17,10 +17,10 @@ const usePost = (postId: string) => {
   const [postState, setPostState] = useState<{
     state: RequestState;
     post: PostInterface;
-  }>({ state: "initialized", post: {author: "", content: ""} });
+  }>({ state: "initialized", post: { author: "", content: "" } });
 
   useEffect(() => {
-    setPostState({ state: "loading", post: {author: "", content: ""} });
+    setPostState({ state: "loading", post: { author: "", content: "" } });
 
     (async () => {
       try {
@@ -28,10 +28,13 @@ const usePost = (postId: string) => {
         if (type === "success") {
           setPostState({ state: "loaded", post });
         } else if (type === "post_not_found") {
-          setPostState({ state: "post_not_found", post: {author: "", content: ""} });
+          setPostState({
+            state: "post_not_found",
+            post: { author: "", content: "" },
+          });
         }
       } catch (e) {
-        setPostState({ state: "error", post: {author: "", content: ""} });
+        setPostState({ state: "error", post: { author: "", content: "" } });
       }
     })();
   }, [postId]);

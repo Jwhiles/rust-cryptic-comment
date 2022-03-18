@@ -20,13 +20,13 @@ export async function hatch() {
   if (wallet.getAccountId()) {
     currentUser = {
       accountId: wallet.getAccountId(),
-      balance: (await wallet.account().state()).amount
+      balance: (await wallet.account().state()).amount,
     };
   }
 
   contract = new nearAPI.Contract(wallet.account(), nearConfig.contractName, {
     viewMethods: ["get_comments", "get_posts_listing", "get_post"],
-    changeMethods: ["add_comment", "create_post"]
+    changeMethods: ["add_comment", "create_post"],
   });
 
   return { contract, currentUser, nearConfig, walletConnection: wallet };
@@ -68,7 +68,7 @@ export const getPosts = async () => {
     const posts = await contract.get_posts_listing();
     return { type: "success", posts };
   } catch (e) {
-      throw e;
+    throw e;
   }
 };
 
@@ -87,7 +87,7 @@ export const addComment = async (
   await contract.add_comment(
     {
       post_id: postId,
-      content
+      content,
     },
     Big(3)
       .times(10 ** 13)
@@ -99,7 +99,7 @@ export const addComment = async (
 export const createPost = async (postId: string) => {
   await contract.create_post(
     {
-      post_id: postId
+      post_id: postId,
     },
     Big(3)
       .times(10 ** 13)
@@ -111,7 +111,7 @@ export const signIn = () => {
   wallet.requestSignIn(
     {
       contractId: nearConfig.contractName,
-      methodNames: [contract.add_comment.name]
+      methodNames: [contract.add_comment.name],
     }, //contract requesting access
     "Cryptic Comments" //optional name
   );

@@ -1,6 +1,6 @@
-import { useState } from "react";
 import Comments from "./Comments";
-import { signIn, signOut, addComment } from "./near";
+import CommentForm from "./CommentForm";
+import { signIn, signOut } from "./near";
 
 interface AppProps {
   contract: any;
@@ -22,35 +22,6 @@ const App = (props: AppProps) => {
         <button onClick={signIn}>Log in to post a comment</button>
       )}
     </div>
-  );
-};
-
-const CommentForm = ({ postId }: any) => {
-  const [comment, setComment] = useState("");
-  const [donation, setDonation] = useState(0);
-
-  return (
-    <form onSubmit={e => e.preventDefault()}>
-      <label>
-        Comment:
-        <input value={comment} onChange={e => setComment(e.target.value)} />
-      </label>
-      <label>
-        Donation:
-        <input
-          type="number"
-          value={donation}
-          onChange={e => setDonation(Number(e.target.value))}
-        />
-      </label>
-      <button
-        onClick={() => {
-          addComment(comment, donation, postId);
-        }}
-      >
-        post
-      </button>
-    </form>
   );
 };
 

@@ -1,6 +1,7 @@
 import { Routes, Route, Link } from "react-router-dom";
 import Posts from "./Posts";
 import Post from "./Post";
+import AddPost from "./AddPost";
 import Comments from "./Comments";
 import CommentForm from "./CommentForm";
 import { signIn, signOut } from "./near";
@@ -17,12 +18,12 @@ const App = (props: AppProps) => {
   return (
     <div>
       <Routes>
-        <Route path="/" element={<Posts />} />
+        <Route path="/" element={<><Posts /><AddPost {...props} /></>} />
         <Route
           path={"/:postId"}
           element={
             <>
-            <Link to="/"><p>Home</p></Link>
+              <Link to="/"><p>Home</p></Link>
               <Post />
               <Comments />
               {props.currentUser && <CommentForm />}

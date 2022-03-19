@@ -1,4 +1,4 @@
-import { getPost, createPost } from "./near/index";
+import { getPost } from "./near/index";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import "./index.css";
@@ -13,17 +13,18 @@ type RequestState =
 interface PostInterface {
   author: string;
   content: string;
+  title: string;
 }
 
 const usePost = () => {
-  const {postId} = useParams();
+  const { postId } = useParams();
   const [postState, setPostState] = useState<{
     state: RequestState;
     post: PostInterface;
-  }>({ state: "initialized", post: { author: "", content: "" } });
+  }>({ state: "initialized", post: { author: "", content: "", title: "" } });
 
   useEffect(() => {
-    setPostState({ state: "loading", post: { author: "", content: "" } });
+    setPostState({ state: "loading", post: { author: "", content: "", title: "" } });
 
     (async () => {
       try {
@@ -33,11 +34,11 @@ const usePost = () => {
         } else if (type === "post_not_found") {
           setPostState({
             state: "post_not_found",
-            post: { author: "", content: "" },
+            post: { author: "", content: "", title: "" },
           });
         }
       } catch (e) {
-        setPostState({ state: "error", post: { author: "", content: "" } });
+        setPostState({ state: "error", post: { author: "", content: "", title: "" } });
       }
     })();
   }, [postId]);
@@ -57,19 +58,19 @@ const Post = () => {
       return <PostNotFound />;
     case "loaded":
       return (
-        <div className="post-container">
-          <p>{postState.post.content}</p>
-        </div>
+        <><h1>{postState.post.title}</h1>
+          <div className="post-container">
+            <p>{postState.post.content}</p>
+          </div>
+        </>
       );
   }
 };
 
 const PostNotFound = () => {
-  const {postId} = useParams();
   return (
     <div>
-      <p>post not found if you are John, then click below to create it</p>
-      <button onClick={() => createPost(postId!)}>Create post</button>
+      <p>This post doesn't exist!</p>
     </div>
   );
 };

@@ -13,7 +13,7 @@ add_comment:
 
 
 create_post: 
-	@near call ${CONTRACT_ID} create_post '{ "post_id": "chans-post", "title": "chan", "content": "likes" }' --accountId whilesj.testnet 
+	@near call ${CONTRACT_ID} create_post '{ "post_id": "chans-post", "title": "chan", "content": "likes" }' --accountId ${CONTRACT_ID}
 
 get_comments: 
 	@near view ${CONTRACT_ID} get_comments '{ "post_id": "my-new-post" }'

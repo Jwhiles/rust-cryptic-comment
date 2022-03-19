@@ -96,10 +96,12 @@ export const addComment = async (
   );
 };
 
-export const createPost = async (postId: string) => {
+export const createPost = async (postId: string, title: string, content: string) => {
   await contract.create_post(
     {
       post_id: postId,
+      title,
+      content,
     },
     Big(3)
       .times(10 ** 13)

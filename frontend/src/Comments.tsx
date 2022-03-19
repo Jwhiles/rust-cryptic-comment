@@ -1,4 +1,4 @@
-import { getComments, createPost } from "./near/index";
+import { getComments } from "./near/index";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 
@@ -14,7 +14,7 @@ interface Comment {
 }
 
 const useComments = () => {
-  const {postId} = useParams();
+  const { postId } = useParams();
 
   const [commentsState, setCommentsState] = useState<{
     state: RequestState;
@@ -50,7 +50,7 @@ const Comments = () => {
     case "error":
       return <div>oh no</div>;
     case "post_not_found":
-      return <PostNotFound />;
+      return null;
     case "loaded":
       return (
         <div>
@@ -69,16 +69,6 @@ const Comments = () => {
         </div>
       );
   }
-};
-
-const PostNotFound = () => {
-  const {postId} = useParams();
-  return (
-    <div>
-      <p>post not found if you are John, then click below to create it</p>
-      <button onClick={() => createPost(postId!)}>Create post</button>
-    </div>
-  );
 };
 
 export default Comments;

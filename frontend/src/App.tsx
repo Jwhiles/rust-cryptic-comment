@@ -1,4 +1,4 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Link } from "react-router-dom";
 import Posts from "./Posts";
 import Post from "./Post";
 import Comments from "./Comments";
@@ -22,6 +22,7 @@ const App = (props: AppProps) => {
           path={"/:postId"}
           element={
             <>
+            <Link to="/"><p>Home</p></Link>
               <Post />
               <Comments />
               {props.currentUser && <CommentForm />}

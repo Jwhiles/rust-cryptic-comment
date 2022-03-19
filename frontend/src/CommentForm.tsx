@@ -6,7 +6,7 @@ import "./index.css";
 const CommentForm = () => {
   const {postId} = useParams();
   const [comment, setComment] = useState("");
-  const [donation, setDonation] = useState(0);
+  const [donation, setDonation] = useState(1);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<null | string>(null);
 

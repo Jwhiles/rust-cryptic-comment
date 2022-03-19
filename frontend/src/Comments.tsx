@@ -57,14 +57,14 @@ const Comments = () => {
           {commentsState.comments.length > 0 ? (
             commentsState.comments.map(({ author, content }, ix) => {
               return (
-                <div key={ix}>
-                  <p>{content}</p>
+                <div className="comment-container" key={ix}>
+                  <strong>{content}</strong>
                   <p>wrote: {author}</p>
                 </div>
               );
             })
           ) : (
-            <div>no comments yet</div>
+            <div className="comment-container">no comments yet</div>
           )}
         </div>
       );

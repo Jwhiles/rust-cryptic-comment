@@ -24,7 +24,6 @@ impl Comment {
 pub struct PostListing {
     post_id: String,
     title: String,
-    slug: String,
 }
 
 #[derive(BorshSerialize, BorshDeserialize)]
@@ -33,7 +32,6 @@ pub struct Post {
     id: String,
     title: String,
     content: String,
-    slug: String,
     // contract owner is always the author
 }
 
@@ -43,12 +41,11 @@ pub struct ApiPost {
     id: String,
     title: String,
     content: String,
-    slug: String,
     // contract owner is always the author
 }
 
 impl Post {
-    pub fn new(id: String, title: String, content: String, slug: String) -> Self {
+    pub fn new(id: String, title: String, content: String) -> Self {
         let mut prefix = Vec::with_capacity(33);
         // Adding unique prefix.
         prefix.push(b's');
@@ -60,7 +57,6 @@ impl Post {
             id,
             title,
             content,
-            slug,
         }
     }
 }
@@ -110,12 +106,12 @@ impl Contract {
         env::log(log_message.as_bytes());
     }
 
-    pub fn create_post(&mut self, post_id: String, title: String, content: String, slug: String) {
+    pub fn create_post(&mut self, post_id: String, title: String, content: String) {
         assert!(
             env::predecessor_account_id() == env::current_account_id(),
             "Owner's method"
         );
-        let post = Post::new(post_id, title, content, slug);
+        let post = Post::new(post_id, title, content);
         // Check that the post ID doesn't already exist!
         self.posts.insert(&post.id, &post);
         let log_message = format!("Created post with ID {}", post.id);
@@ -131,7 +127,6 @@ impl Contract {
                 id: p.id,
                 content: p.content,
                 title: p.title,
-                slug: p.slug,
             },
             None => panic!("post does not exist"),
         }
@@ -143,7 +138,6 @@ impl Contract {
             post_listing.push(PostListing {
                 post_id: post.id,
                 title: post.title,
-                slug: post.slug,
             });
         }
         // for this to work we need to convert from a LookupMap to either TreeMap or UnorderedMap

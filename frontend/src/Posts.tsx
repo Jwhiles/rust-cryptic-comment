@@ -10,7 +10,6 @@ type RequestState =
   | "post_not_found";
 interface Post {
   title: string;
-  slug: string;
   post_id: string;
 }
 
@@ -55,7 +54,7 @@ const Posts = () => {
         <div>
           <h1>Welcome to blog</h1>
           {postsState.posts.length > 0 ? (
-            postsState.posts.map(({ title, slug, post_id }, ix) => {
+            postsState.posts.map(({ title, post_id }, ix) => {
               return (
                 <div key={ix}>
                   <Link to={post_id}>{title}</Link>

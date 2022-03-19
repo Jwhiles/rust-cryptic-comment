@@ -1,8 +1,10 @@
 import { useState } from "react";
+import { useParams } from "react-router-dom";
 import { addComment } from "./near";
 import "./index.css";
 
-const CommentForm = ({ postId }: any) => {
+const CommentForm = () => {
+  const {postId} = useParams();
   const [comment, setComment] = useState("");
   const [donation, setDonation] = useState(0);
   const [submitting, setSubmitting] = useState(false);
@@ -40,7 +42,7 @@ const CommentForm = ({ postId }: any) => {
         onClick={async () => {
           try {
             setSubmitting(true);
-            await addComment(comment, donation, postId);
+            await addComment(comment, donation, postId!);
           } catch {
             setError("!! You must provide a minimum donation of 1 NEAR.");
           } finally {

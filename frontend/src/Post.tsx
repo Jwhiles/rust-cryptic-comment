@@ -1,5 +1,7 @@
 import { getPost, createPost } from "./near/index";
 import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import "./index.css";
 
 type RequestState =
   | "initialized"
@@ -13,7 +15,8 @@ interface PostInterface {
   content: string;
 }
 
-const usePost = (postId: string) => {
+const usePost = () => {
+  const {postId} = useParams();
   const [postState, setPostState] = useState<{
     state: RequestState;
     post: PostInterface;
@@ -24,7 +27,7 @@ const usePost = (postId: string) => {
 
     (async () => {
       try {
-        const { type, post } = await getPost(postId);
+        const { type, post } = await getPost(postId!);
         if (type === "success") {
           setPostState({ state: "loaded", post });
         } else if (type === "post_not_found") {
@@ -41,8 +44,8 @@ const usePost = (postId: string) => {
   return postState;
 };
 
-const Post = ({ postId }: { postId: string }) => {
-  const postState = usePost(postId);
+const Post = () => {
+  const postState = usePost();
 
   switch (postState.state) {
     case "initialized":
@@ -51,21 +54,22 @@ const Post = ({ postId }: { postId: string }) => {
     case "error":
       return <div>oh no</div>;
     case "post_not_found":
-      return <PostNotFound postId={postId} />;
+      return <PostNotFound />;
     case "loaded":
       return (
-        <div>
+        <div className="post-container">
           <p>{postState.post.content}</p>
         </div>
       );
   }
 };
 
-const PostNotFound = ({ postId }: { postId: string }) => {
+const PostNotFound = () => {
+  const {postId} = useParams();
   return (
     <div>
       <p>post not found if you are John, then click below to create it</p>
-      <button onClick={() => createPost(postId)}>Create post</button>
+      <button onClick={() => createPost(postId!)}>Create post</button>
     </div>
   );
 };

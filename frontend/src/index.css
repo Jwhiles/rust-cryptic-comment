@@ -30,7 +30,7 @@ button {
   border: 3px solid green;
   padding: 15px 20px;
   border-radius: 20px;
-  width: 70%;
+  width: 50%;
 }
 
 .commentform-section {
@@ -54,5 +54,14 @@ button {
   border-radius: 20px;
   border: 1px solid green;
   margin-left: 10px;
+}
+
+/* Post styles */
+
+.post-container {
+  border: 3px solid green;
+  padding: 10px;
+  font-size: 20px;
+  border-radius: 20px;
 }
 

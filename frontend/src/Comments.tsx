@@ -1,5 +1,6 @@
 import { getComments, createPost } from "./near/index";
 import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 
 type RequestState =
   | "initialized"
@@ -12,7 +13,9 @@ interface Comment {
   content: string;
 }
 
-const useComments = (postId: string) => {
+const useComments = () => {
+  const {postId} = useParams();
+
   const [commentsState, setCommentsState] = useState<{
     state: RequestState;
     comments: Comment[];
@@ -23,7 +26,7 @@ const useComments = (postId: string) => {
 
     (async () => {
       try {
-        const { type, comments } = await getComments(postId);
+        const { type, comments } = await getComments(postId!);
         if (type === "success") {
           setCommentsState({ state: "loaded", comments });
         } else if (type === "post_not_found") {
@@ -37,8 +40,8 @@ const useComments = (postId: string) => {
   return commentsState;
 };
 
-const Comments = ({ postId }: { postId: string }) => {
-  const commentsState = useComments(postId);
+const Comments = () => {
+  const commentsState = useComments();
 
   switch (commentsState.state) {
     case "initialized":
@@ -47,7 +50,7 @@ const Comments = ({ postId }: { postId: string }) => {
     case "error":
       return <div>oh no</div>;
     case "post_not_found":
-      return <PostNotFound postId={postId} />;
+      return <PostNotFound />;
     case "loaded":
       return (
         <div>
@@ -68,11 +71,12 @@ const Comments = ({ postId }: { postId: string }) => {
   }
 };
 
-const PostNotFound = ({ postId }: { postId: string }) => {
+const PostNotFound = () => {
+  const {postId} = useParams();
   return (
     <div>
       <p>post not found if you are John, then click below to create it</p>
-      <button onClick={() => createPost(postId)}>Create post</button>
+      <button onClick={() => createPost(postId!)}>Create post</button>
     </div>
   );
 };

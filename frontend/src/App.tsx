@@ -19,12 +19,12 @@ const App = (props: AppProps) => {
       <Routes>
         <Route path="/" element={<Posts />} />
         <Route
-          path={props.postId}
+          path={"/:postId"}
           element={
             <>
-              <Post postId={props.postId} />
-              <Comments postId={props.postId} />
-              {props.currentUser && <CommentForm postId={props.postId} />}
+              <Post />
+              <Comments />
+              {props.currentUser && <CommentForm />}
               {props.currentUser ? (
                 <button onClick={signOut}>Sign out</button>
               ) : (

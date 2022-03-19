@@ -14,7 +14,7 @@ export const renderComments = (domNode: HTMLElement | null, postId: string) => {
           nearConfig={nearConfig}
           wallet={walletConnection}
           postId={postId}
-        />,
+        />
         </BrowserRouter>,
       domNode
     );

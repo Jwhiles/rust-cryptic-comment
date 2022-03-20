@@ -1,27 +1,35 @@
-# RUST CrYPtiC ComMMENT
+# BLORG
+Blogs, blogs never change. Except when they do. They are the locus of uncensored self expression in cyberspace.
+In the beginning there were simple web blogs, made by deranged hackers hooked on dialup and the whole earth catalog.
+Then came business. Yes, business. Geocities, Livejournal, the little known 'microblogging' platform known as Twitter, then there came opportunities for people to monetise their online ramblings. Substack, Patreon, etc. The trend is away from decentralised, user controlled platforms towards easier to use but more and more centralized platforms that take power away, even as they provide more exposure. WELL NO MORE!
+
+Now there is a new cool new way of blogging. Imagine hosting your writing on the IMMUTABLE UNCENSORABLE BLOCKCHAIN. Imagine if your audience could freely add to the conversation, whilst being dissuaded from spamming by HAVING TO PAY TO COMMENT. Imagine if **engagement** also meant **financial support**.
+
+The future is here - it's called Blorg!
+
 ## WHAT IS IT
-A simple comment system, designed to be dropped into a silly website that could use comments. For example, [my website](www.johnwhiles.com). It makes commentors pay to post comments.
+Blorg is a system that allows you to publish a blog to the blockchain, and an accompanying frontend that makes it easy to use. But even better, it provides your readers an easy way to engage and support you. Blorg includes a pay-to-comment system that allows your readers to directly financially support you whilst adding to the conversation. This also has the upside of reducing spam comments.
 
-### WHy?
-I think making people pay to use your website is probably an easy and effective way to avoid spam. Also because I wanted to understand wot a crypto is. Also I wanted to write RUST.
+- The backend is in Rust, and can be deployed to NEAR manually, by you.
+- The frontend is a small React app.
 
-### INSPIRATION
-* Smart Parking Meters
-* Having seen comments on other websites
+### How to make Blorg your own
 
-## How to Use it
-WIP
+Make a NEAR account if you don't have one. To deploy this app to your account you need:
+* Rustup
+* NPM
+* NEAR CLI
 
-You need
-RUSTUP
-NPM
-THE NEAR CLI
+Clone this repo and change any mentions of `blorg.testnet` to your accountId. Then:
 
-Then run `make` in your command line and follow the help I guess?
+```
+export CONTRACT_ID={put your contract ID here}
+make build
+make deploy
+```
 
-## Hi John
-if you are reading this, you've forgotten how this project works.
+Now you are ready to write blog posts! Either host the blog somewhere or just `cd frontend && yarn && yarn start` to see it locally. Use the UI to start writing blog posts!
 
-there are two parts.
-* The backend is in rust, and is deployed to near manually, by you. Run make build and then make deploy to publish a new version. Any chances to the data model will require migration
-* The frontend is a small react app
+### Other cool stuff
+You can change the minimum donation required for comments by calling the `set_comment_cost` method.
+

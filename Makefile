@@ -3,13 +3,13 @@ all: help
 
 
 set_comment_cost: 
-	@near call ${CONTRACT_ID} set_comment_cost '{ "new_cost": "10000000000000000000000" }' --accountId blorg.testnet
+	@near call ${CONTRACT_ID} set_comment_cost '{ "new_cost": "10000000000000000000000" }' --accountId ${CONTRACT_ID}
 
 clear_state: 
-	@near call ${CONTRACT_ID} clear_state --accountId blorg.testnet
+	@near call ${CONTRACT_ID} clear_state --accountId ${CONTRACT_ID}
 
 add_comment: 
-	@near call ${CONTRACT_ID} add_comment '{ "post_id": "my-new-post", "content": "nice blog post!" }' --accountId blorg.testnet --deposit 0.01
+	@near call ${CONTRACT_ID} add_comment '{ "post_id": "my-new-post", "content": "nice blog post!" }' --accountId ${CONTRACT_ID} --deposit 0.01
 
 
 create_post: 
@@ -26,19 +26,15 @@ get_posts_listing:
 
 ## make dev-deploy
 dev-deploy:
-	@near dev-deploy --wasmFile target/wasm32-unknown-unknown/release/rust_cryptic_comment.wasm --accountId blorg.testnet
+	@near dev-deploy --wasmFile target/wasm32-unknown-unknown/release/rust_cryptic_comment.wasm --accountId ${CONTRACT_ID}
 
 ## make deploy: deploy the thing
 deploy:
-	@near deploy --wasmFile target/wasm32-unknown-unknown/release/rust_cryptic_comment.wasm --accountId blorg.testnet
+	@near deploy --wasmFile target/wasm32-unknown-unknown/release/rust_cryptic_comment.wasm --accountId ${CONTRACT_ID}
 
 ## make login: login into near, needed for deployment
 login:
 	@near login
-
-## make test: run unit tests
-test:
-	@cargo test -- --nocapture
 
 ## make build: build a version of the package for release to the chain
 build:

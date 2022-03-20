@@ -11,7 +11,6 @@ interface AppProps {
   currentUser: any;
   nearConfig: any;
   wallet: any;
-  postId: string;
 }
 
 const App = (props: AppProps) => {

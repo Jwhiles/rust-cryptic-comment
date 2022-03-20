@@ -20,8 +20,9 @@ const App = (props: AppProps) => {
       <Routes>
         <Route path="/" element={
           <>
-            <Posts />
+            <Posts {...props} />
             <AddPost {...props} />
+            <br />
             {!props.currentUser && <button onClick={signIn}>Log in</button>}
           </>
         } />

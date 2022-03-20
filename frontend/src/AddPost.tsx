@@ -2,23 +2,26 @@ import { createPost } from "./near/index";
 import { useState } from "react";
 import "./index.css";
 
-interface AppPostProps {
+interface AddPostProps {
     contract: { contractId: string };
     currentUser: { accountId: string };
 }
 
-const AddPost = (props: AppPostProps) => {
+const AddPost = (props: AddPostProps) => {
     const [showForm, setShowForm] = useState(false);
     const [submitting, setSubmitting] = useState(false);
     const [title, setTitle] = useState("");
     const [text, setText] = useState("");
     const [error, setError] = useState<null | string>(null);
 
-    console.log(props.currentUser)
-    console.log(props.contract)
+    const goToGithub = () => {
+        window.location.replace("https://github.com/Jwhiles/rust-cryptic-comment/blob/main/README.md");
+    }
 
     if (props.currentUser?.accountId !== props.contract?.contractId) {
-        return null;
+        return (
+            <button onClick={goToGithub}>Click here to create your own blog on NEAR</button>
+        );
     }
 
     const submitPost = async () => {

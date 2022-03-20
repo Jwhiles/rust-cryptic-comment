@@ -8,9 +8,14 @@ type RequestState =
   | "loaded"
   | "error"
   | "post_not_found";
+
 interface Post {
   title: string;
   post_id: string;
+}
+
+interface PostsProps {
+  contract: { contractId: string };
 }
 
 const usePosts = () => {
@@ -38,7 +43,7 @@ const usePosts = () => {
   return postsState;
 };
 
-const Posts = () => {
+const Posts = (props: PostsProps) => {
   const postsState = usePosts();
 
   switch (postsState.state) {
@@ -52,7 +57,7 @@ const Posts = () => {
     case "loaded":
       return (
         <div>
-          <h1>Welcome to blog</h1>
+          <h1>Welcome to {props.contract.contractId}'s blog</h1>
           {postsState.posts.length > 0 ? (
             postsState.posts.map(({ title, post_id }, ix) => {
               return (

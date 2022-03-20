@@ -18,7 +18,13 @@ const App = (props: AppProps) => {
   return (
     <div>
       <Routes>
-        <Route path="/" element={<><Posts /><AddPost {...props} /></>} />
+        <Route path="/" element={
+          <>
+            <Posts />
+            <AddPost {...props} />
+            {!props.currentUser && <button onClick={signIn}>Log in</button>}
+          </>
+        } />
         <Route
           path={"/:postId"}
           element={

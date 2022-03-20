@@ -72,7 +72,7 @@ pub struct Contract {
 impl Default for Contract {
     fn default() -> Self {
         Self {
-            posts: TreeMap::new(b"r".to_vec()),
+            posts: TreeMap::new(b"e".to_vec()),
             comment_cost: ONE_NEAR / 100, // 0.01 NEAR
         }
     }
@@ -88,7 +88,7 @@ impl Contract {
         );
 
         Self {
-            posts: TreeMap::new(b"r".to_vec()),
+            posts: TreeMap::new(b"e".to_vec()),
             comment_cost: ONE_NEAR / 100,
         }
     }

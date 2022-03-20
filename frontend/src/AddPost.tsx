@@ -14,7 +14,10 @@ const AddPost = (props: AppPostProps) => {
     const [text, setText] = useState("");
     const [error, setError] = useState<null | string>(null);
 
-    if (props.currentUser.accountId !== props.contract.contractId) {
+    console.log(props.currentUser)
+    console.log(props.contract)
+
+    if (props.currentUser?.accountId !== props.contract?.contractId) {
         return null;
     }
 
@@ -32,23 +35,26 @@ const AddPost = (props: AppPostProps) => {
 
     return showForm
         ? <form
-            className="commentform-container"
+            className="form-container"
             onSubmit={(e) => e.preventDefault()}>
-            <label> Title:
-                <input
-                    className="commentform-input"
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                />
-            </label>
-            <label> Text:
-                <textarea
-                    className="commentform-textarea"
-                    value={text}
-                    onChange={(e) => setText(e.target.value)} />
-            </label>
-            {error && <p>{error}</p>}
-            <button onClick={submitPost}>{submitting ? "Submitting..." : "Create post"}</button>
+            <h2>Write a post</h2>
+            <div className="form-section">
+                <label> Title:
+                    <input
+                        className="form-title"
+                        value={title}
+                        onChange={(e) => setTitle(e.target.value)}
+                    />
+                </label>
+                <label> Text:
+                    <textarea
+                        className="form-textarea"
+                        value={text}
+                        onChange={(e) => setText(e.target.value)} />
+                </label>
+                {error && <p>{error}</p>}
+                <button onClick={submitPost}>{submitting ? "Submitting..." : "Create post"}</button>
+            </div>
         </form>
         : <button onClick={() => setShowForm(true)}>Create new post</button>
 };

@@ -1,9 +1,9 @@
 
-const CONTRACT_NAME = process.env.CONTRACT_NAME || 'whilesj.testnet'; /* TODO: change this to your account */
+const CONTRACT_NAME = 'blorg.testnet'; /* TODO: change this to your account */
 
 type Env = 'production' | 'mainnet' | 'development' | 'testnet' | 'betanet' | 'local' | 'test' | 'ci' | 'ci-betanet'
 
-export default function getConfig (env: Env) {
+export default function getConfig(env: Env) {
   switch (env) {
     case 'production':
     case 'mainnet':

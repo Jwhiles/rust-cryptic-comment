@@ -4,7 +4,7 @@ import { addComment } from "./near";
 import "./index.css";
 
 const CommentForm = () => {
-  const {postId} = useParams();
+  const { postId } = useParams();
   const [comment, setComment] = useState("");
   const [donation, setDonation] = useState(1);
   const [submitting, setSubmitting] = useState(false);
@@ -12,25 +12,25 @@ const CommentForm = () => {
 
   return (
     <form
-      className="commentform-container"
+      className="form-container"
       onSubmit={(e) => e.preventDefault()}
     >
       <h2>Write a comment</h2>
-      <div className="commentform-section">
+      <div className="form-section">
         <label>
           Comment:
           <textarea
-            className="commentform-textarea"
+            className="form-textarea"
             value={comment}
             onChange={(e) => setComment(e.target.value)}
           />
         </label>
       </div>
-      <div className="commentform-section">
+      <div className="form-section">
         <label>
           Donation in NEAR:
           <input
-            className="commentform-input"
+            className="form-input"
             type="number"
             value={donation}
             onChange={(e) => setDonation(Number(e.target.value))}
